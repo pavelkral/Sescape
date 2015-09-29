@@ -1,6 +1,7 @@
 #include <QImage>
 #include <QDebug>
 #include <QPixmap>
+#include <QMutableMapIterator>
 #include <math.h>
 #include "ui_widget.h"
 #include "widget.h"
@@ -16,23 +17,20 @@ Widget::Widget(QWidget *parent)
     QPalette palette;
     palette.setBrush(this->backgroundRole(), QBrush(QImage(":images/sky.png")));
     this->setPalette(palette);
-
     plane = new Plane;
     map = new QMap<int,Shoot *>;
     enemymap = new QMap<int,Enemy *>;
-
     timerId = startTimer(30);
     shootCount = 0;
     enemyCount = 0;
     SCORE = 0;
     escaped = 0;
-    gameOver = FALSE;
-    gameWon = FALSE;
-    paused = FALSE;
-
+    gameOver = false;
+    gameWon = false;
+    paused = false;
     xt = QTime::currentTime();
     xt = QTime::currentTime().addSecs( 2 );
-    qDebug() << "Start time:" << xt ;
+    qDebug() << "Game Started:" << xt ;
 }
 
 //...............................................................................................................
@@ -66,9 +64,9 @@ Widget::~Widget()
 void Widget::createToolBar()
 {
     fileToolBar = new QToolBar(this);
-  //  fileToolBar->addWidget(ui->label);
- //   fileToolBar->addSeparator();
-  //  fileToolBar->addWidget(ui->label_2);
+  //fileToolBar->addWidget(ui->label);
+  //fileToolBar->addSeparator();
+  //fileToolBar->addWidget(ui->label_2);
 }
 
 //...............................................................................................................
@@ -76,9 +74,7 @@ void Widget::createToolBar()
 
 void Widget::paintEvent(QPaintEvent *event)
 {
-
     QPainter painter(this);
-
     if (gameOver) {
       QFont font("Courier", 15, QFont::DemiBold);
       QFontMetrics fm(font);
@@ -86,7 +82,6 @@ void Widget::paintEvent(QPaintEvent *event)
       painter.setFont(font);
       int h = height();
       int w = width();
-
       painter.translate(QPoint(w/2, h/2));
       painter.drawText(-textWidth/2, 0, "Game Over");
       killTimer(timerId);
@@ -95,11 +90,9 @@ void Widget::paintEvent(QPaintEvent *event)
           QFont font("Courier", 15, QFont::DemiBold);
           QFontMetrics fm(font);
           int textWidth = fm.width("Victory");
-
           painter.setFont(font);
           int h = height();
           int w = width();
-
           painter.translate(QPoint(w/2, h/2));
           painter.drawText(-textWidth/2, 0, "Victory");
           killTimer(timerId);
@@ -125,11 +118,9 @@ void Widget::paintEvent(QPaintEvent *event)
              QFont font("Courier", 15, QFont::DemiBold);
              QFontMetrics fm(font);
              int textWidth = fm.width("Paused");
-
              painter.setFont(font);
              int h = height();
              int w = width();
-
              painter.translate(QPoint(w/2, h/2));
              painter.drawText(-textWidth/2, 0, "Paused");
              killTimer(timerId);
@@ -147,25 +138,25 @@ void Widget::timerEvent(QTimerEvent *event)
     ui->label_4->setText(QString("ENEMY ESCAPED %1").arg(escaped));
 
     if(SCORE >= 25){
-        gameWon = TRUE;
+        gameWon = true;
     }
     if(escaped >= 8){
-        gameOver = TRUE;
+        gameOver = true;
     }
 
     int x = 20;
 
     n = QTime::currentTime();
     if(xt < n){
-        qDebug() << "Time t:" << xt << "Time n:" << n ;
+        qDebug() << "New enemy set :" << xt << "Time n:" << n ;
        for (int i=0; i<6; i++) {
             Enemy* en =new Enemy();
             en->resetState(x,-60);
             enemymap->insert(enemyCount,en);
             enemyCount++;
-
+            qDebug() << "New Enemy:" << enemyCount ;
             x=x+100;
-          }
+       }
        QString str;
        str.append(QString("%1").arg(enemyCount));
        QString uiENEMY = "ENEMY:" + str + "";
@@ -174,24 +165,10 @@ void Widget::timerEvent(QTimerEvent *event)
         xt = QTime::currentTime().addSecs( 10 );
     }
 
-    QMap< int,Shoot *>::const_iterator i = map->constBegin();
-    QMap< int,Enemy *>::const_iterator e = enemymap->constBegin();
 
-    while (i != map->constEnd()) {
-      i.value()->autoMove();
-         ++i;
-     }
-
-    while (e != enemymap->constEnd()) {
-        e.value()->autoMove();
-        if(e.value()->destroyed == TRUE){
-           delete e.value();
-           enemymap->remove(e.key());
-        }
-          ++e;
-      }
-
+    animate();
     checkCollision();
+    removeDestroyed();
     repaint();
 
 }
@@ -220,12 +197,12 @@ void Widget::keyPressEvent(QKeyEvent *event)
        {
                 if(paused){
                     timerId = startTimer(30);
-                    paused = FALSE;
+                    paused = false;
                     xt = QTime::currentTime();
                     xt = QTime::currentTime().addSecs( 10 );
                 }
                 else{
-                  paused = TRUE;
+                  paused = true;
 
                 }
        }
@@ -249,9 +226,9 @@ void Widget::keyPressEvent(QKeyEvent *event)
                 enemyCount = 0;
                 SCORE = 0;
                 escaped = 0;
-                gameOver = FALSE;
-                gameWon = FALSE;
-                paused = FALSE;
+                gameOver = false;
+                gameWon = false;
+                paused = false;
                 xt = QTime::currentTime();
                 xt = QTime::currentTime().addSecs( 2 );
             }
@@ -294,54 +271,71 @@ void Widget::keyPressEvent(QKeyEvent *event)
 void Widget::checkCollision()
 {
     QMap< int,Shoot *>::const_iterator i = map->constBegin();
-
-        int control2 =0;
-        int control = 0;
-        while (i != map->constEnd()) {
-            QMap< int,Enemy *>::const_iterator e = enemymap->constBegin();
-           while (e != enemymap->constEnd()) {
-               if ((i.value()->getRect()).intersects(e.value()->getRect())) {
-                    e.value()->Destroyed();
-                    control = 1;
-                    control2 = 1;
-                    SCORE = SCORE + 1;
-                    qDebug() << "Destroyed: KEY" << i.key() ;
-                }
-
-                ++e;
-                control=0;
-              }
-           if (i.value()->getRect().bottom() == 30 ){
-                control2 = 1;
-
-           }
-           if(control2 == 1){
-               delete i.value();
-               map->remove(i.key());
-           }
-
-        ++i;
-        control2 = 0;
+    while (i != map->constEnd()) {
+        QMap< int,Enemy *>::const_iterator e = enemymap->constBegin();
+        while (e != enemymap->constEnd()) {
+           if ((i.value()->getRect()).intersects(e.value()->getRect())) {
+                e.value()->Destroyed();
+                i.value()->Destroyed();
+                SCORE = SCORE + 1;
+                qDebug() << "Colision: Enemy" << e.key() << "Shoot" << i.key() ;
+            }
+          ++e;
         }
+      ++i;
+    }
 
-        QMap< int,Enemy *>::const_iterator en = enemymap->constBegin();
+    QMap< int,Enemy *>::const_iterator en = enemymap->constBegin();
+    while (en != enemymap->constEnd()) {
+        if ((en.value()->getRect()).intersects(plane->getRect())) {
+            en.value()->Destroyed();
+            qDebug() << "Crash:" << en.key() ;
+            gameOver = true;
 
-        while (en != enemymap->constEnd()) {
-            if ((en.value()->getRect()).intersects(plane->getRect())) {
-                en.value()->Destroyed();
-                qDebug() << "crash:" << en.key() ;
-                gameOver = TRUE;
+        }
+        if (en.value()->getRect().top() == 320){
+           en.value()->Destroyed();;
+           escaped++;
 
-             }
-            if (en.value()->getRect().top() == 320){
-               delete en.value();
-               enemymap->remove(en.key());
-               escaped++;
-
-                   }
-               ++en;
-           }
+        }
+    ++en;
+    }
 
 }
+void Widget::removeDestroyed()
+{
+    QMutableMapIterator<int,Shoot * > i(*map);
+    while (i.hasNext()) {
+        i.next();
+        if (i.value()->destroyed ){
+          qDebug() << "Remove Shoot:" << i.key() ;
+            i.remove();
+        }
+    }
+    QMutableMapIterator<int,Enemy * > c(*enemymap);
+    while (c.hasNext()) {
+        c.next();
+        if (c.value()->destroyed ){
+          qDebug() << "Remove Enemy:" << c.key() ;
+            c.remove();
+        }
+    }
+}
+void Widget::animate()
+{
+    QMap< int,Shoot *>::const_iterator i = map->constBegin();
+    while (i != map->constEnd()) {
+      i.value()->autoMove();
+
+         ++i;
+     }
+    QMap< int,Enemy *>::const_iterator e = enemymap->constBegin();
+    while (e != enemymap->constEnd()) {
+        e.value()->autoMove();
+
+       ++e;
+    }
+}
+
 
 //...............................................................................................................

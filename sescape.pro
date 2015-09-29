@@ -1,16 +1,13 @@
 # -------------------------------------------------
 # Project created by QtCreator 2009-10-13T17:19:57
 # -------------------------------------------------
-
+QT += widgets
 
 TEMPLATE = app
 
 RESOURCES += sescape.qrc
 
-CONFIG += debug
-
-
-TARGET = build/bin/sescape
+TARGET = build/sescape
 
 OBJECTS_DIR = build
 

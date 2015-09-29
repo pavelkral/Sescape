@@ -6,7 +6,7 @@ Shoot::Shoot()
 {
   xdir = 0;
   ydir = -1;
-
+  destroyed = false;
   image.load(":images/shoot.png");
   rect = image.rect();
 
@@ -18,16 +18,21 @@ Shoot::~Shoot()
 
 void Shoot::resetState(int x,int y)
 {
-  rect.moveTo(x,y);
+    rect.moveTo(x,y);
 }
 void Shoot::autoMove()
 {
     int x =  xdir;
     int y = -5 + ydir;
 
-  rect.translate(x, y);
+    rect.translate(x, y);
 
  }
+
+void Shoot::Destroyed()
+{
+    destroyed=true;
+}
 QRect Shoot::getRect(){
    return rect;
 }

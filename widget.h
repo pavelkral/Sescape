@@ -1,11 +1,12 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QPainter>
 #include <QTime>
 #include <QToolBar>
 #include <QKeyEvent>
+#include <QMutableMapIterator>
 #include <QMap>
 #include "plane.h"
 #include "shoot.h"
@@ -26,12 +27,9 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = 0);
     ~Widget();
-
-
     QToolBar *fileToolBar;
     QMap<int,Shoot*> *map;
     QMap<int,Enemy*> *enemymap;
-
 
 
 protected:
@@ -39,6 +37,8 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void timerEvent(QTimerEvent *event);
     void checkCollision();
+    void removeDestroyed();
+    void animate();
 public slots:
 
 private:
@@ -53,7 +53,6 @@ private:
     int SCORE;
     int escaped;
     bool paused;
-
     QTime xt;
     QTime n;
 

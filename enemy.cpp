@@ -1,3 +1,11 @@
+/*
+ * @author  2009 Pavel Kral
+ * @category   C++
+ *
+ * For the full copyright and license information, please view
+ * the file license.txt that was distributed with this source code.
+ */
+
 #include "enemy.h"
 #include <QDebug>
 #include <QObject>
@@ -10,7 +18,7 @@ Enemy::Enemy(QObject *parent)
 {
     xdir = 0;
     ydir = 1;
-    destroyed = FALSE;
+    destroyed = false;
     image.load(":images/enemy.png");
     rect = image.rect();
     timerd = startTimer(100);
@@ -37,7 +45,7 @@ void Enemy::autoMove()
 void Enemy::Destroyed()
 {
     image.load(":images/explo.png");
-    destroyed=TRUE;
+    destroyed=true;
 }
 void Enemy::timerEvent(QTimerEvent *event)
 {
