@@ -11,7 +11,6 @@
 #include <QObject>
 #include <math.h>
 
-
 Enemy::Enemy(QObject *parent)
     : QObject(parent)
 
