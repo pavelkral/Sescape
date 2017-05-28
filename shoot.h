@@ -24,7 +24,7 @@ public:
     bool destroyed;
 
   private:
-     int angle;
+    int angle;
     int speed;
     int xdir;
     int ydir;

@@ -7,7 +7,7 @@ Shoot::Shoot()
   xdir = 0;
   ydir = -1;
   destroyed = false;
-  image.load(":images/shoot.png");
+  image.load(":images/shoot2.png");
   rect = image.rect();
 
 }
@@ -24,7 +24,6 @@ void Shoot::autoMove()
 {
     int x =  xdir;
     int y = -5 + ydir;
-
     rect.translate(x, y);
 
  }

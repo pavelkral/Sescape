@@ -18,10 +18,10 @@ Enemy::Enemy(QObject *parent)
     xdir = 0;
     ydir = 1;
     destroyed = false;
-    image.load(":images/enemy.png");
+	image.load(":images/en1.png");
     rect = image.rect();
     timerd = startTimer(100);
-    xt = QTime::currentTime();
+  //  xt = QTime::currentTime();
     xt = QTime::currentTime().addSecs(1);
     irot = 1;
 }
@@ -33,11 +33,11 @@ Enemy::~Enemy()
 
 void Enemy::resetState(int x,int y)
 {
-  rect.moveTo(x,y);
+	rect.moveTo(x,y);
 }
 void Enemy::autoMove()
 {
-  rect.translate(xdir, ydir);
+	rect.translate(xdir, ydir);
 
 
 }
@@ -51,12 +51,12 @@ void Enemy::timerEvent(QTimerEvent *event)
 
     n = QTime::currentTime();
     if(xt > n){
-       image.load(":images/enemy2.png");
+	   image.load(":images/en1.png");
 
     }
     if(xt < n){
-        image.load(":images/enemy.png");
-        xt = QTime::currentTime().addSecs(1);
+		image.load(":images/en2.png");
+		xt = QTime::currentTime().addSecs(1);
     }
     /*
     if(irot == 1){

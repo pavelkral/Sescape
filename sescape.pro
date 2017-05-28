@@ -7,7 +7,9 @@ TEMPLATE = app
 
 RESOURCES += sescape.qrc
 
-TARGET = build/sescape
+CONFIG += debug
+
+TARGET = sescape
 
 OBJECTS_DIR = build
 

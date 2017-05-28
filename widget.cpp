@@ -3,6 +3,8 @@
 #include <QPixmap>
 #include <QMutableMapIterator>
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 #include "ui_widget.h"
 #include "widget.h"
 #include "shoot.h"
@@ -20,7 +22,7 @@ Widget::Widget(QWidget *parent)
     plane = new Plane;
     map = new QMap<int,Shoot *>;
     enemymap = new QMap<int,Enemy *>;
-    timerId = startTimer(30);
+
     shootCount = 0;
     enemyCount = 0;
     SCORE = 0;
@@ -30,6 +32,7 @@ Widget::Widget(QWidget *parent)
     paused = false;
     xt = QTime::currentTime();
     xt = QTime::currentTime().addSecs( 2 );
+    timerId = startTimer(30);
     qDebug() << "Game Started:" << xt ;
 }
 
@@ -139,34 +142,63 @@ void Widget::timerEvent(QTimerEvent *event)
 
     if(SCORE >= 25){
         gameWon = true;
+
     }
     if(escaped >= 8){
         gameOver = true;
+
     }
 
     int x = 20;
 
     n = QTime::currentTime();
     if(xt < n){
-        qDebug() << "New enemy set :" << xt << "Time n:" << n ;
-       for (int i=0; i<6; i++) {
-            Enemy* en =new Enemy();
-            en->resetState(x,-60);
-            enemymap->insert(enemyCount,en);
-            enemyCount++;
-            qDebug() << "New Enemy:" << enemyCount ;
-            x=x+100;
-       }
+		qDebug() << "New enemy :" << xt << "Time n:" << n ;
+
+		int v2 = rand() % 6 + 1;
+		srand (time(NULL));
+		qDebug() << "Random:" << v2 ;
+
+		Enemy* en =new Enemy();
+
+		switch (v2) {
+		case 1:
+			en->resetState(x,-60);
+			break;
+		case 2:
+			en->resetState(x+100,-60);
+			break;
+		case 3:
+			en->resetState(x+200,-60);
+			break;
+		case 4:
+			en->resetState(x+300,-60);
+			break;
+		case 5:
+			en->resetState(x+400,-60);
+			break;
+		case 6:
+			en->resetState(x+500,-60);
+			break;
+		default:
+			break;
+		}
+
+		//en->resetState(x,-60);
+		enemymap->insert(enemyCount,en);
+		enemyCount++;
+		qDebug() << "New Enemy:" << enemyCount ;
+
        QString str;
        str.append(QString("%1").arg(enemyCount));
        QString uiENEMY = "ENEMY:" + str + "";
        ui->label_2->setText(uiENEMY);
 
-        xt = QTime::currentTime().addSecs( 10 );
+		xt = QTime::currentTime().addSecs( 3 );
     }
 
 
-    animate();
+    this->animate();
     checkCollision();
     removeDestroyed();
     repaint();
@@ -239,7 +271,7 @@ void Widget::keyPressEvent(QKeyEvent *event)
          case Qt::Key_Space:
         {
            if(!paused){
-                int x = plane->getRect().x();
+				int x = plane->getRect().x() + 32;
                 int y = plane->getRect().y();
 
                 Shoot* k =new Shoot();
@@ -304,7 +336,7 @@ void Widget::checkCollision()
 }
 void Widget::removeDestroyed()
 {
-    QMutableMapIterator<int,Shoot * > i(*map);
+    QMutableMapIterator<int,Shoot *> i(*map);
     while (i.hasNext()) {
         i.next();
         if (i.value()->destroyed ){
@@ -312,11 +344,11 @@ void Widget::removeDestroyed()
             i.remove();
         }
     }
-    QMutableMapIterator<int,Enemy * > c(*enemymap);
+    QMutableMapIterator<int,Enemy*> c(*enemymap);
     while (c.hasNext()) {
         c.next();
         if (c.value()->destroyed ){
-          qDebug() << "Remove Enemy:" << c.key() ;
+		  qDebug() << "Remove Enemy key:" << c.key() << "value:" << c.value() << "from map on adress:" <<  &enemymap << "on pointer:" <<  enemymap ;
             c.remove();
         }
     }
