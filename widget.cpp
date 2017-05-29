@@ -37,8 +37,11 @@ Widget::Widget(QWidget *parent)
     gameWon = false;
     paused = false;
     xt = QTime::currentTime();
+	sht = QTime::currentTime();
+
     xt = QTime::currentTime().addSecs( 2 );
     timerId = startTimer(30);
+	this->installEventFilter(this);
     qDebug() << "Game Started:" << xt ;
 }
 
@@ -217,27 +220,14 @@ void Widget::timerEvent(QTimerEvent *event)
 void Widget::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
-    case Qt::Key_Left:
-       {
-              int x = plane->getRect().x();
-              for (int i=1; i<=10; i++)
-              plane->moveLeft(x--);
-        break;
-       }
-         case Qt::Key_Right:
-        {
-              int x = plane->getRect().x();
-              for (int i=1; i<=10; i++)
-              plane->moveRight(x++);
-        }
-        break;
+
         case Qt::Key_P:
        {
                 if(paused){
                     timerId = startTimer(30);
                     paused = false;
                     xt = QTime::currentTime();
-                    xt = QTime::currentTime().addSecs( 10 );
+					xt = QTime::currentTime().addSecs( 2 );
                 }
                 else{
                   paused = true;
@@ -274,29 +264,7 @@ void Widget::keyPressEvent(QKeyEvent *event)
                 }
    }
        break;
-         case Qt::Key_Space:
-        {
-           if(!paused){
-				if(m_player->state()== QMediaPlayer::PlayingState){
-					  m_player->setPosition(0);
-				}else if(m_player->state()== QMediaPlayer::StoppedState){
-					 m_player->play();
-				}
-				int x = plane->getRect().x() + 32;
-                int y = plane->getRect().y();
 
-                Shoot* k =new Shoot();
-                k->resetState(x,y);
-                map->insert(shootCount,k);
-
-                QString str;
-                str.append(QString("%1").arg(shootCount));
-                QString uishoots = "SHOOTS:" + str + "";
-                ui->label->setText(uishoots);
-                shootCount++;
-          }
-        }
-        break;
          case Qt::Key_Escape:
         {
               qApp->exit();
@@ -381,7 +349,78 @@ void Widget::animate()
         e.value()->autoMove();
 
        ++e;
-    }
+	}
+}
+
+void Widget::shoot()
+{
+
+	n = QTime::currentTime();
+	if(n>sht){
+		if(m_player->state()== QMediaPlayer::PlayingState){
+			  m_player->setPosition(0);
+		}else if(m_player->state()== QMediaPlayer::StoppedState){
+			 m_player->play();
+		}
+		int x = plane->getRect().x() + 32;
+		int y = plane->getRect().y();
+
+		Shoot* k =new Shoot();
+		k->resetState(x,y);
+		map->insert(shootCount,k);
+
+		QString str;
+		str.append(QString("%1").arg(shootCount));
+		QString uishoots = "SHOOTS:" + str + "";
+		ui->label->setText(uishoots);
+		shootCount++;
+		sht = QTime::currentTime().addMSecs(200);
+	}
+}
+
+bool Widget::eventFilter(QObject * obj, QEvent * event)
+{
+
+	if(event->type()==QEvent::KeyPress) {
+
+		pressedKeys += ((QKeyEvent*)event)->key();
+
+
+		if( pressedKeys.contains(Qt::Key_Space) )
+		{
+			qDebug() << "" ;
+			if(!paused){
+				shoot();
+		   }
+		}
+		if( pressedKeys.contains(Qt::Key_Right) )
+		{
+			qDebug() << "" ;
+			if(!paused){
+				int c = plane->getRect().x();
+				for (int i=1; i<=10; i++)
+				plane->moveRight(c++);
+		   }
+		}
+		if( pressedKeys.contains(Qt::Key_Left) )
+		{
+			qDebug() << "" ;
+			if(!paused){
+				int c = plane->getRect().x();
+				for (int i=1; i<=10; i++)
+				plane->moveLeft(c--);
+		   }
+		}
+
+	}
+	else if(event->type()==QEvent::KeyRelease)
+	{
+
+		pressedKeys -= ((QKeyEvent*)event)->key();
+	}
+
+
+	return false;
 }
 
 

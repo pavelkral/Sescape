@@ -35,15 +35,18 @@ public:
 	QMediaPlayer * m_player;
 	QMediaPlayer * m_player1;// Audio player
 	QMediaPlaylist * m_playlist;
+	QSet<int> pressedKeys;
 
 
 protected:
     void paintEvent(QPaintEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void timerEvent(QTimerEvent *event);
+	bool eventFilter(QObject * obj, QEvent * event);
     void checkCollision();
     void removeDestroyed();
     void animate();
+	void shoot();
 public slots:
 
 private:
@@ -60,6 +63,7 @@ private:
     bool paused;
     QTime xt;
     QTime n;
+	QTime sht;
 
 };
 
