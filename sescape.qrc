@@ -6,5 +6,8 @@
         <file>images/en2.png</file>
         <file>images/plane3.png</file>
         <file>images/shoot2.png</file>
+        <file>images/explo.mp3</file>
+        <file>images/sh.mp3</file>
+        <file>images/cannon.wav</file>
     </qresource>
 </RCC>

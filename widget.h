@@ -7,6 +7,8 @@
 #include <QToolBar>
 #include <QKeyEvent>
 #include <QMutableMapIterator>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 #include <QMap>
 #include "plane.h"
 #include "shoot.h"
@@ -30,6 +32,9 @@ public:
     QToolBar *fileToolBar;
     QMap<int,Shoot*> *map;
     QMap<int,Enemy*> *enemymap;
+	QMediaPlayer * m_player;
+	QMediaPlayer * m_player1;// Audio player
+	QMediaPlaylist * m_playlist;
 
 
 protected:

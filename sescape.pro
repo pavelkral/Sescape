@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2009-10-13T17:19:57
 # -------------------------------------------------
-QT += widgets
+QT += widgets multimedia
 
 TEMPLATE = app
 
