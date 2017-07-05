@@ -1,4 +1,4 @@
-Sescape is a simple shooter game writen in c++ and Qt framework.          
+Shooter game in C++ and Qt.          
 
 
 ![alt tag](http://quadriproduction.org/media/img/app/sescape.jpg)
